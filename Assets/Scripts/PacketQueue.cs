@@ -1,0 +1,46 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PacketQueue : MonoBehaviour
+{
+
+    public static PacketQueue Instance { get; } = new PacketQueue();
+    Queue<IPacket> m_packetQueue = new Queue<IPacket>();
+    object m_lock = new object();
+
+
+    public void Push(IPacket packet)
+    {
+        lock (m_lock)
+        {
+            m_packetQueue.Enqueue(packet);
+        }
+
+    }
+
+    public IPacket Pop()
+    {
+        lock (m_lock)
+        {
+            if (m_packetQueue.Count == 0)
+                return null;
+            return m_packetQueue.Dequeue();
+        }
+    }
+
+
+    public List<IPacket> PopAll()
+    {
+        List<IPacket> list = new List<IPacket>();
+        lock (m_lock)
+        {
+            while (m_packetQueue.Count > 0)
+                list.Add(m_packetQueue.Dequeue());
+        }
+        return list;
+    }
+
+
+  
+}
